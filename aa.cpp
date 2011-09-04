@@ -11,12 +11,12 @@ public:
     static void delete_matrix(matrix *m);
     class iter_all {
     public:
-        iter_all(const matrix &m) : matrix_(m) { pix = &m.items[0]; }
-        iter_all &operator ++(int) { pix++; return *this; }
-        number *operator *() { return pix == &matrix_.items[matrix_.height * matrix_.width] ? 0 : pix; }
+        iter_all(const matrix *m) { pix = &m->items[0]; beyond = &m->items[m->height * m->width]; }
+        void operator ++(int) { pix++; }
+        number *operator *() { return pix == beyond ? 0 : pix; }
     private:
-        const matrix &matrix_;
         number *pix;
+        number *beyond;
     };
     void size(int *height_, int *width_) { *height_ = height; *width_ = width; }
     void show();
@@ -38,8 +38,7 @@ matrix *matrix::new_garbage(int height, int width)
 matrix *matrix::new_random_filled(int height, int width)
 {
     matrix *m = new_garbage(height, width);
-    iter_all i(*m);
-    for (iter_all i(*m); *i != 0; i++) {
+    for (iter_all i(m); *i != 0; i++) {
         number *n = *i;
         *n = rand() % 10;
     }
@@ -56,7 +55,7 @@ void matrix::show()
 {
     int height, width;
     size(&height, &width);
-    matrix::iter_all i(*this);
+    matrix::iter_all i(this);
     printf("(\n");
     for (int line = 0; line < height; line++) {
         for (int column = 0; column < width; column++) {

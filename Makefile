@@ -1,5 +1,5 @@
 
-.PHONY: all clean
+.PHONY: all clean run
 
 all:
 	scons
@@ -7,3 +7,5 @@ all:
 clean:
 	scons -c
 
+run: all
+	./aa
