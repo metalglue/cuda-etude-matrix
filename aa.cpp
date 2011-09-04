@@ -20,6 +20,25 @@ public:
     };
     void size(int *height_, int *width_) { *height_ = height; *width_ = width; }
     void show();
+    class iter_row {
+    public:
+        iter_row(const matrix *m, int row) { pix = &m->items[row * m->width]; beyond = &m->items[(row + 1) * m->width]; }
+        void operator ++(int) { pix++; }
+        number *operator *() { return pix == beyond ? 0 : pix; }
+    private:
+        number *pix;
+        number *beyond;
+    };
+    class iter_col {
+    public:
+        iter_col(const matrix *m, int col) : width(m->width) { pix = &m->items[col]; beyond = &m->items[m->height * m->width + col]; }
+        void operator ++() { pix += width; }
+        number *operator *() { return pix == beyond ? 0 : pix; }
+    private:
+        const int width;
+        number *pix;
+        number *beyond;
+    };
 private:
     matrix();
     matrix(int height_, int width_) : height(height_), width(width_) {}
