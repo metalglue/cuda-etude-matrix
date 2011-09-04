@@ -50,8 +50,9 @@ public:
         number *beyond;
     };
     static bool eq(const matrix *a, const matrix *b);
-    static int mul_ijk(const matrix *a, const matrix *b, matrix *r);
-    static int mul_kij(const matrix *a, const matrix *b, matrix *r);
+    static long mul_ijk(const matrix *a, const matrix *b, matrix *r);
+    static long mul_kij(const matrix *a, const matrix *b, matrix *r);
+    static long mul_ikj(const matrix *a, const matrix *b, matrix *r);
 private:
     matrix();
     matrix(int height_, int width_) : height(height_), width(width_) {}
@@ -91,7 +92,7 @@ void matrix::show() const
     printf("(\n");
     for (int line = 0; line < height; line++) {
         for (int column = 0; column < width; column++) {
-            printf("%2.0f ", **i);
+            printf("%2.0f ", (double)**i);
             i++;
         }
         printf("\n");
@@ -110,7 +111,7 @@ bool matrix::eq(const matrix *a, const matrix *b)
     return true;
 }
 
-int matrix::mul_ijk(const matrix *a, const matrix *b, matrix *r)
+long matrix::mul_ijk(const matrix *a, const matrix *b, matrix *r)
 {
     int width, height;
     a->size(&height, &width);
@@ -128,21 +129,19 @@ int matrix::mul_ijk(const matrix *a, const matrix *b, matrix *r)
             r_i++;
         }
     }
-    return width * width * height * 2;
+    return (long)width * width * height * 2;
 }
 
-int matrix::mul_kij(const matrix *a, const matrix *b, matrix *r)
+long matrix::mul_kij(const matrix *a, const matrix *b, matrix *r)
 {
     int width, height, size;
     a->size(&height, &width);
-    for (iter_all i(r); *i; i++) {
+    for (iter_all i(r); *i; i++)
         **i = 0;
-        i.ok();
-    }
     for (int k = 0; k < width; k++) {
         iter_col a_i(a, k);
         for (int i = 0; i < height; i++) {
-            double n = **a_i; a_i++;
+            number n = **a_i; a_i++;
             iter_row b_i(b, k);
             iter_row r_i(r, i);
             for (int j = 0; j < height; j++) {
@@ -151,7 +150,28 @@ int matrix::mul_kij(const matrix *a, const matrix *b, matrix *r)
             }
         }
     }
-    return width * width * height * 2;
+    return (long)width * width * height * 2;
+}
+
+long matrix::mul_ikj(const matrix *a, const matrix *b, matrix *r)
+{
+    int width, height, size;
+    a->size(&height, &width);
+    for (int i = 0; i < height; i++) {
+        for (iter_row r_i(r, i); *r_i; r_i++)
+            **r_i = 0;
+        iter_row a_i(a, i);
+        for (int k = 0; k < width; k++) {
+            number n = **a_i; a_i++;
+            iter_row r_i(r, i);
+            iter_row b_i(b, k);
+            for (int j = 0; j < height; j++) {
+                **r_i += **b_i * n;
+                r_i++; b_i++;
+            }
+        }
+    }
+    return (long)width * width * height * 2;
 }
 
 /*           */
@@ -167,7 +187,7 @@ class stopwatch {
 public:
     void start();
     void get_lap();
-    void show(int flop_count) const ;
+    void show(long flop_count) const ;
 private:
     clock_t clock_start, clock_lap;
     tms tms_start, tms_lap;
@@ -185,7 +205,7 @@ void stopwatch::get_lap()
     ::times(&tms_lap);
 }
 
-void stopwatch::show(int flop_count) const
+void stopwatch::show(long flop_count) const
 {
     long ticks = ::sysconf(_SC_CLK_TCK);
     printf("Real: %.2f s\n", (double)(clock_lap - clock_start) / CLOCKS_PER_SEC);
@@ -206,7 +226,7 @@ test_0001()
     matrix *r = matrix::new_garbage(2, 2);
     stopwatch sw;
     sw.start();
-    int flop_count = matrix::mul_ijk(a, b, r);
+    long flop_count = matrix::mul_ijk(a, b, r);
     sw.get_lap();
     a->show(); b->show(); r->show();
     sw.show(flop_count);
@@ -223,7 +243,7 @@ test_0002()
     matrix *r = matrix::new_garbage(DIM, DIM);
     stopwatch sw;
     sw.start();
-    int flop_count = matrix::mul_ijk(a, b, r);
+    long flop_count = matrix::mul_ijk(a, b, r);
     sw.get_lap();
     sw.show(flop_count);
     matrix::delete_matrix(a);
@@ -239,7 +259,7 @@ test_0003()
     matrix *r = matrix::new_garbage(2, 2);
     stopwatch sw;
     sw.start();
-    int flop_count = matrix::mul_kij(a, b, r);
+    long flop_count = matrix::mul_kij(a, b, r);
     sw.get_lap();
     a->show(); b->show(); r->show();
     sw.show(flop_count);
@@ -256,7 +276,7 @@ test_0004()
     matrix *r = matrix::new_garbage(DIM, DIM);
     stopwatch sw;
     sw.start();
-    int flop_count = matrix::mul_kij(a, b, r);
+    long flop_count = matrix::mul_kij(a, b, r);
     sw.get_lap();
     sw.show(flop_count);
     matrix::delete_matrix(a);
@@ -273,7 +293,7 @@ test_0005()
     matrix *r2 = matrix::new_garbage(DIM, DIM);
     stopwatch sw;
     sw.start();
-    int flop_count;
+    long flop_count;
     flop_count = matrix::mul_ijk(a, b, r1);
     sw.get_lap();
     sw.show(flop_count);
@@ -288,8 +308,55 @@ test_0005()
     matrix::delete_matrix(r2);
 }
 
+void
+test_0006()
+{
+    matrix *a = matrix::new_random_filled(2, 3);
+    matrix *b = matrix::new_random_filled(3, 2);
+    matrix *r = matrix::new_garbage(2, 2);
+    stopwatch sw;
+    sw.start();
+    long flop_count = matrix::mul_ikj(a, b, r);
+    sw.get_lap();
+    a->show(); b->show(); r->show();
+    sw.show(flop_count);
+    matrix::delete_matrix(a);
+    matrix::delete_matrix(b);
+    matrix::delete_matrix(r);
+}
+
+void
+test_0007()
+{
+    matrix *a = matrix::new_random_filled(DIM, DIM);
+    matrix *b = matrix::new_random_filled(DIM, DIM);
+    matrix *r1 = matrix::new_garbage(DIM, DIM);
+    matrix *r2 = matrix::new_garbage(DIM, DIM);
+    matrix *r3 = matrix::new_garbage(DIM, DIM);
+    stopwatch sw;
+    sw.start();
+    long flop_count;
+    flop_count = matrix::mul_ijk(a, b, r1);
+    sw.get_lap();
+    sw.show(flop_count);
+    sw.start();
+    flop_count = matrix::mul_kij(a, b, r2);
+    sw.get_lap();
+    sw.show(flop_count);
+    sw.start();
+    flop_count = matrix::mul_ikj(a, b, r3);
+    sw.get_lap();
+    sw.show(flop_count);
+    assert(matrix::eq(r1, r2));
+    assert(matrix::eq(r2, r3));
+    matrix::delete_matrix(a);
+    matrix::delete_matrix(b);
+    matrix::delete_matrix(r1);
+    matrix::delete_matrix(r2);
+}
+
 int main()
 {
-    test_0005();
+    test_0007();
 }
 
