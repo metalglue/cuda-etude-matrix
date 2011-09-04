@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <stdio.h>
 
+const int DIM = 1000;
 typedef double number;
 
 /*        */
@@ -177,9 +178,9 @@ test_0001()
 void
 test_0002()
 {
-    matrix *a = matrix::new_random_filled(1000, 1000);
-    matrix *b = matrix::new_random_filled(1000, 1000);
-    matrix *r = matrix::new_garbage(1000, 1000);
+    matrix *a = matrix::new_random_filled(DIM, DIM);
+    matrix *b = matrix::new_random_filled(DIM, DIM);
+    matrix *r = matrix::new_garbage(DIM, DIM);
     stopwatch sw;
     sw.start();
     int flop_count = matrix::mul_ijk(a, b, r);
