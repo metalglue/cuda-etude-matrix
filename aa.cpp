@@ -1,3 +1,4 @@
+/* vim: set sw=4 sts=4 sta : */
 
 #include <cstdlib>
 #include <stdio.h>
@@ -18,8 +19,8 @@ public:
         number *pix;
         number *beyond;
     };
-    void size(int *height_, int *width_) { *height_ = height; *width_ = width; }
-    void show();
+    void size(int *height_, int *width_) const { *height_ = height; *width_ = width; }
+    void show() const ;
     class iter_row {
     public:
         iter_row(const matrix *m, int row) { pix = &m->items[row * m->width]; beyond = &m->items[(row + 1) * m->width]; }
@@ -32,13 +33,14 @@ public:
     class iter_col {
     public:
         iter_col(const matrix *m, int col) : width(m->width) { pix = &m->items[col]; beyond = &m->items[m->height * m->width + col]; }
-        void operator ++() { pix += width; }
+        void operator ++(int) { pix += width; }
         number *operator *() { return pix == beyond ? 0 : pix; }
     private:
         const int width;
         number *pix;
         number *beyond;
     };
+    static void mul_ijk(const matrix *a, const matrix *b, matrix *r);
 private:
     matrix();
     matrix(int height_, int width_) : height(height_), width(width_) {}
@@ -70,7 +72,7 @@ void matrix::delete_matrix(matrix *m)
     delete m;
 }
 
-void matrix::show()
+void matrix::show() const
 {
     int height, width;
     size(&height, &width);
@@ -86,13 +88,34 @@ void matrix::show()
     printf(")\n");
 }
 
+void matrix::mul_ijk(const matrix *a, const matrix *b, matrix *r)
+{
+    int width, height;
+    a->size(&height, &width);
+    for (int i = 0; i < height; i++) {
+        iter_row r_i(r, i);
+        for (int j = 0; j < height; j++) {
+            iter_row a_i(a, i);
+            iter_col b_i(b, j);
+            double n = 0;
+            for (int k = 0; k < width; k++) {
+                n += **a_i * **b_i;
+                a_i++; b_i++;
+            }
+            **r_i = n;
+            r_i++;
+        }
+    }
+}
+
 void
 test_0001()
 {
     matrix *a = matrix::new_random_filled(2, 3);
     matrix *b = matrix::new_random_filled(3, 2);
     matrix *r = matrix::new_garbage(2, 2);
-    a->show(); b->show();
+    matrix::mul_ijk(a, b, r);
+    a->show(); b->show(); r->show();
     matrix::delete_matrix(a);
     matrix::delete_matrix(b);
     matrix::delete_matrix(r);
