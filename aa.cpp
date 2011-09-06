@@ -134,8 +134,10 @@ long matrix::mul_ijk(const matrix *a, const matrix *b, matrix *r)
 
 long matrix::mul_kij(const matrix *a, const matrix *b, matrix *r)
 {
-    int width, height, size;
+    int width, height, h_div, h_mod, size;
     a->size(&height, &width);
+    h_div = height / 16;
+    h_mod = height % 16;
     for (iter_all i(r); *i; i++)
         **i = 0;
     for (int k = 0; k < width; k++) {
@@ -144,7 +146,41 @@ long matrix::mul_kij(const matrix *a, const matrix *b, matrix *r)
             number n = **a_i; a_i++;
             iter_row b_i(b, k);
             iter_row r_i(r, i);
-            for (int j = 0; j < height; j++) {
+            for (int j = 0; j < h_div; j++) {
+                **r_i += **b_i * n;
+                r_i++; b_i++;
+                **r_i += **b_i * n;
+                r_i++; b_i++;
+                **r_i += **b_i * n;
+                r_i++; b_i++;
+                **r_i += **b_i * n;
+                r_i++; b_i++;
+                **r_i += **b_i * n;
+                r_i++; b_i++;
+                **r_i += **b_i * n;
+                r_i++; b_i++;
+                **r_i += **b_i * n;
+                r_i++; b_i++;
+                **r_i += **b_i * n;
+                r_i++; b_i++;
+                **r_i += **b_i * n;
+                r_i++; b_i++;
+                **r_i += **b_i * n;
+                r_i++; b_i++;
+                **r_i += **b_i * n;
+                r_i++; b_i++;
+                **r_i += **b_i * n;
+                r_i++; b_i++;
+                **r_i += **b_i * n;
+                r_i++; b_i++;
+                **r_i += **b_i * n;
+                r_i++; b_i++;
+                **r_i += **b_i * n;
+                r_i++; b_i++;
+                **r_i += **b_i * n;
+                r_i++; b_i++;
+            }
+            for (int j = 0; j < h_mod; j++) {
                 **r_i += **b_i * n;
                 r_i++; b_i++;
             }
@@ -155,8 +191,10 @@ long matrix::mul_kij(const matrix *a, const matrix *b, matrix *r)
 
 long matrix::mul_ikj(const matrix *a, const matrix *b, matrix *r)
 {
-    int width, height, size;
+    int width, height, h_div, h_mod, size;
     a->size(&height, &width);
+    h_div = height / 16;
+    h_mod = height % 16;
     for (int i = 0; i < height; i++) {
         for (iter_row r_i(r, i); *r_i; r_i++)
             **r_i = 0;
@@ -165,7 +203,41 @@ long matrix::mul_ikj(const matrix *a, const matrix *b, matrix *r)
             number n = **a_i; a_i++;
             iter_row r_i(r, i);
             iter_row b_i(b, k);
-            for (int j = 0; j < height; j++) {
+            for (int j = 0; j < h_div; j++) {
+                **r_i += **b_i * n;
+                r_i++; b_i++;
+                **r_i += **b_i * n;
+                r_i++; b_i++;
+                **r_i += **b_i * n;
+                r_i++; b_i++;
+                **r_i += **b_i * n;
+                r_i++; b_i++;
+                **r_i += **b_i * n;
+                r_i++; b_i++;
+                **r_i += **b_i * n;
+                r_i++; b_i++;
+                **r_i += **b_i * n;
+                r_i++; b_i++;
+                **r_i += **b_i * n;
+                r_i++; b_i++;
+                **r_i += **b_i * n;
+                r_i++; b_i++;
+                **r_i += **b_i * n;
+                r_i++; b_i++;
+                **r_i += **b_i * n;
+                r_i++; b_i++;
+                **r_i += **b_i * n;
+                r_i++; b_i++;
+                **r_i += **b_i * n;
+                r_i++; b_i++;
+                **r_i += **b_i * n;
+                r_i++; b_i++;
+                **r_i += **b_i * n;
+                r_i++; b_i++;
+                **r_i += **b_i * n;
+                r_i++; b_i++;
+            }
+            for (int j = 0; j < h_mod; j++) {
                 **r_i += **b_i * n;
                 r_i++; b_i++;
             }
