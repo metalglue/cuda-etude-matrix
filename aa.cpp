@@ -32,6 +32,7 @@ public:
     public:
         iter_row(const matrix *m, int row) { pix = &m->items[row * m->width]; beyond = &m->items[(row + 1) * m->width]; }
         void operator ++(int) { pix++; }
+        void operator +=(int d) { pix += d; }
         number *operator *() { return pix == beyond ? 0 : pix; }
         void ok() { assert(pix <= beyond); }
     private:
@@ -147,38 +148,23 @@ long matrix::mul_kij(const matrix *a, const matrix *b, matrix *r)
             iter_row b_i(b, k);
             iter_row r_i(r, i);
             for (int j = 0; j < h_div; j++) {
-                **r_i += **b_i * n;
-                r_i++; b_i++;
-                **r_i += **b_i * n;
-                r_i++; b_i++;
-                **r_i += **b_i * n;
-                r_i++; b_i++;
-                **r_i += **b_i * n;
-                r_i++; b_i++;
-                **r_i += **b_i * n;
-                r_i++; b_i++;
-                **r_i += **b_i * n;
-                r_i++; b_i++;
-                **r_i += **b_i * n;
-                r_i++; b_i++;
-                **r_i += **b_i * n;
-                r_i++; b_i++;
-                **r_i += **b_i * n;
-                r_i++; b_i++;
-                **r_i += **b_i * n;
-                r_i++; b_i++;
-                **r_i += **b_i * n;
-                r_i++; b_i++;
-                **r_i += **b_i * n;
-                r_i++; b_i++;
-                **r_i += **b_i * n;
-                r_i++; b_i++;
-                **r_i += **b_i * n;
-                r_i++; b_i++;
-                **r_i += **b_i * n;
-                r_i++; b_i++;
-                **r_i += **b_i * n;
-                r_i++; b_i++;
+                (*r_i)[0] += (*b_i)[0] * n;
+                (*r_i)[1] += (*b_i)[1] * n;
+                (*r_i)[2] += (*b_i)[2] * n;
+                (*r_i)[3] += (*b_i)[3] * n;
+                (*r_i)[4] += (*b_i)[4] * n;
+                (*r_i)[5] += (*b_i)[5] * n;
+                (*r_i)[6] += (*b_i)[6] * n;
+                (*r_i)[7] += (*b_i)[7] * n;
+                (*r_i)[8] += (*b_i)[8] * n;
+                (*r_i)[9] += (*b_i)[9] * n;
+                (*r_i)[10] += (*b_i)[10] * n;
+                (*r_i)[11] += (*b_i)[11] * n;
+                (*r_i)[12] += (*b_i)[12] * n;
+                (*r_i)[13] += (*b_i)[13] * n;
+                (*r_i)[14] += (*b_i)[14] * n;
+                (*r_i)[15] += (*b_i)[15] * n;
+                r_i += 16; b_i += 16;
             }
             for (int j = 0; j < h_mod; j++) {
                 **r_i += **b_i * n;
@@ -204,38 +190,23 @@ long matrix::mul_ikj(const matrix *a, const matrix *b, matrix *r)
             iter_row r_i(r, i);
             iter_row b_i(b, k);
             for (int j = 0; j < h_div; j++) {
-                **r_i += **b_i * n;
-                r_i++; b_i++;
-                **r_i += **b_i * n;
-                r_i++; b_i++;
-                **r_i += **b_i * n;
-                r_i++; b_i++;
-                **r_i += **b_i * n;
-                r_i++; b_i++;
-                **r_i += **b_i * n;
-                r_i++; b_i++;
-                **r_i += **b_i * n;
-                r_i++; b_i++;
-                **r_i += **b_i * n;
-                r_i++; b_i++;
-                **r_i += **b_i * n;
-                r_i++; b_i++;
-                **r_i += **b_i * n;
-                r_i++; b_i++;
-                **r_i += **b_i * n;
-                r_i++; b_i++;
-                **r_i += **b_i * n;
-                r_i++; b_i++;
-                **r_i += **b_i * n;
-                r_i++; b_i++;
-                **r_i += **b_i * n;
-                r_i++; b_i++;
-                **r_i += **b_i * n;
-                r_i++; b_i++;
-                **r_i += **b_i * n;
-                r_i++; b_i++;
-                **r_i += **b_i * n;
-                r_i++; b_i++;
+                (*r_i)[0] += (*b_i)[0] * n;
+                (*r_i)[1] += (*b_i)[1] * n;
+                (*r_i)[2] += (*b_i)[2] * n;
+                (*r_i)[3] += (*b_i)[3] * n;
+                (*r_i)[4] += (*b_i)[4] * n;
+                (*r_i)[5] += (*b_i)[5] * n;
+                (*r_i)[6] += (*b_i)[6] * n;
+                (*r_i)[7] += (*b_i)[7] * n;
+                (*r_i)[8] += (*b_i)[8] * n;
+                (*r_i)[9] += (*b_i)[9] * n;
+                (*r_i)[10] += (*b_i)[10] * n;
+                (*r_i)[11] += (*b_i)[11] * n;
+                (*r_i)[12] += (*b_i)[12] * n;
+                (*r_i)[13] += (*b_i)[13] * n;
+                (*r_i)[14] += (*b_i)[14] * n;
+                (*r_i)[15] += (*b_i)[15] * n;
+                r_i += 16; b_i += 16;
             }
             for (int j = 0; j < h_mod; j++) {
                 **r_i += **b_i * n;
