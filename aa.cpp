@@ -135,7 +135,7 @@ long matrix::mul_ijk(const matrix *a, const matrix *b, matrix *r)
 
 long matrix::mul_kij(const matrix *a, const matrix *b, matrix *r)
 {
-    int width, height, h_div, h_mod, size;
+    int width, height, h_div, h_mod;
     a->size(&height, &width);
     h_div = height / 16;
     h_mod = height % 16;
@@ -177,7 +177,7 @@ long matrix::mul_kij(const matrix *a, const matrix *b, matrix *r)
 
 long matrix::mul_ikj(const matrix *a, const matrix *b, matrix *r)
 {
-    int width, height, h_div, h_mod, size;
+    int width, height, h_div, h_mod;
     a->size(&height, &width);
     h_div = height / 16;
     h_mod = height % 16;
