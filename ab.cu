@@ -222,8 +222,8 @@ long matrix::mul_ikj(const matrix *a, const matrix *b, matrix *r)
 
 __global__ void mul_cuda_1_kernel(number *a, number *b, number *r, int height, int width)
 {
-    int tx = threadIdx.x;
-    int ty = threadIdx.y;
+    int tx = blockIdx.x;
+    int ty = blockIdx.y;
     number n = 0;
     for (int k = 0; k < width; k++) {
         n += a[ty * width + k] * b[k * height + tx];
@@ -243,8 +243,8 @@ long matrix::mul_cuda_1(const matrix *a, const matrix *b, matrix *r)
     matrix::iter_all ib(b);
     CUDA_SAFE_CALL( cudaMemcpy(bb, *ib, height * width * sizeof(number), cudaMemcpyHostToDevice) );
     CUDA_SAFE_CALL( cudaMalloc(&rr, height * height * sizeof(number)) );
-    dim3 block(height, height);
-    dim3 grid(1, 1);
+    dim3 grid(height, height);
+    dim3 block(1, 1);
     mul_cuda_1_kernel<<<grid, block>>>((number *)aa, (number *)bb, (number *)rr, height, width);
     matrix::iter_all ir(r);
     CUDA_SAFE_CALL( cudaMemcpy(*ir, rr, height * height * sizeof(number), cudaMemcpyDeviceToHost) );
@@ -353,7 +353,7 @@ int main(int argc, char *argv[])
         CUDA_SAFE_CALL( cudaFree(dummy) );
     }
 
-    test_0001();
+    test_0002();
 
     CUT_EXIT(argc, argv);
     return 0;
