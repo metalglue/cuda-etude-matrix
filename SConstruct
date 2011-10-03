@@ -16,14 +16,21 @@ env_ab.Tool('nvcc', toolpath = ['/home/kimura/usr/lib/scons/SCons/Tool/'])
 env_ab.Append(CPPPATH = ['/home/kimura/dist/cudasdk/C/common/inc'])
 env_ab.Append(LIBPATH  = ['/home/kimura/dist/cudasdk/C/lib', '/home/kimura/dist/cudasdk/C/common/lib/linux', '/usr/local/cuda/lib64'])
 env_ab.Append(LIBS = ['glut', 'GLEW_x86_64', 'cudart', 'cutil_x86_64'])
+
+env_ac = Environment()
+env_ac.Append(CCFLAGS=['-fopenmp'])
+env_ac.Append(LIBS=['rt', 'gomp'])
+
 if DEBUG:
    env_cm.Append(CCFLAGS='-g')
    env_aa.Append(CCFLAGS='-g')
    env_ab.Append(CCFLAGS='-g')
+   env_ac.Append(CCFLAGS='-g')
 else:
    env_cm.Append(CCFLAGS='-O')
    env_ab.Append(CCFLAGS='-O')
    env_aa.Append(CCFLAGS='-O')
+   env_ac.Append(CCFLAGS='-O')
 
 cm = env_cm.Library(["mx.cpp", "sw.cpp"])
 
@@ -31,5 +38,7 @@ aa = env_aa.Program(["aa.cpp", cm])
 
 ab = env_ab.Program(["ab.cu", cm])
 
-Default([aa, ab])
+ac = env_ac.Program(["ac.cpp", cm])
+
+Default([aa, ab, ac])
 
