@@ -5,14 +5,29 @@ if DEBUG == 'yes' or DEBUG == 'true' or DEBUG == '1':
 else:
     DEBUG = False
 
-env = Environment()
-env.Tool('nvcc', toolpath = ['/home/kimura/usr/lib/scons/SCons/Tool/'])
-env.Append(CPPPATH = ['/home/kimura/dist/cudasdk/C/common/inc'])
-env.Append(LIBPATH  = ['/home/kimura/dist/cudasdk/C/lib', '/home/kimura/dist/cudasdk/C/common/lib/linux', '/usr/local/cuda/lib64'])
-env.Append(LIBS = ['glut', 'GLEW_x86_64', 'cudart', 'cutil_x86_64'])
+env_cm = Environment()
+
+env_aa = Environment()
+
+env_ab = Environment()
+env_ab.Tool('nvcc', toolpath = ['/home/kimura/usr/lib/scons/SCons/Tool/'])
+env_ab.Append(CPPPATH = ['/home/kimura/dist/cudasdk/C/common/inc'])
+env_ab.Append(LIBPATH  = ['/home/kimura/dist/cudasdk/C/lib', '/home/kimura/dist/cudasdk/C/common/lib/linux', '/usr/local/cuda/lib64'])
+env_ab.Append(LIBS = ['glut', 'GLEW_x86_64', 'cudart', 'cutil_x86_64'])
 if DEBUG:
-   env.Append(CCFLAGS='-g')
+   env_cm.Append(CCFLAGS='-g')
+   env_aa.Append(CCFLAGS='-g')
+   env_ab.Append(CCFLAGS='-g')
 else:
-   env.Append(CCFLAGS='-O')
-env.Program(["ab.cu"])
+   env_cm.Append(CCFLAGS='-O')
+   env_ab.Append(CCFLAGS='-O')
+   env_aa.Append(CCFLAGS='-O')
+
+cm = env_cm.Library(["mx.cpp", "sw.cpp"])
+
+aa = env_aa.Program(["aa.cpp", cm])
+
+ab = env_ab.Program(["ab.cu", cm])
+
+Default([aa, ab])
 
