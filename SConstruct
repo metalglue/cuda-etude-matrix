@@ -8,8 +8,10 @@ else:
 env_cm = Environment()
 
 env_aa = Environment()
+env_aa.Append(LIBS=['rt'])
 
 env_ab = Environment()
+env_ab.Append(LIBS=['rt'])
 env_ab.Tool('nvcc', toolpath = ['/home/kimura/usr/lib/scons/SCons/Tool/'])
 env_ab.Append(CPPPATH = ['/home/kimura/dist/cudasdk/C/common/inc'])
 env_ab.Append(LIBPATH  = ['/home/kimura/dist/cudasdk/C/lib', '/home/kimura/dist/cudasdk/C/common/lib/linux', '/usr/local/cuda/lib64'])
