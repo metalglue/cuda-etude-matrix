@@ -16,6 +16,7 @@ env_ab.Tool('nvcc', toolpath = ['/home/kimura/usr/lib/scons/SCons/Tool/'])
 env_ab.Append(CPPPATH = ['/home/kimura/dist/cudasdk/C/common/inc'])
 env_ab.Append(LIBPATH  = ['/home/kimura/dist/cudasdk/C/lib', '/home/kimura/dist/cudasdk/C/common/lib/linux', '/usr/local/cuda/lib64'])
 env_ab.Append(LIBS = ['glut', 'GLEW_x86_64', 'cudart', 'cutil_x86_64'])
+env_ab.Append(NVCCFLAGS = ['-arch=sm_13'])
 
 env_ac = Environment()
 env_ac.Append(CCFLAGS=['-fopenmp'])
