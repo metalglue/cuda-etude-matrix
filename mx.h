@@ -50,6 +50,7 @@ public:
     static long mul_ikj(const matrix *a, const matrix *b, matrix *r);
     static long mul_cuda_1(const matrix *a, const matrix *b, matrix *r);
     static long mul_cuda_2(const matrix *a, const matrix *b, matrix *r);
+    static long mul_cuda_3(const matrix *a, const matrix *b, matrix *r);
     static long mul_openmp(const matrix *a, const matrix *b, matrix *r);
 private:
     matrix();

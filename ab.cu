@@ -110,6 +110,40 @@ long matrix::mul_cuda_2(const matrix *a, const matrix *b, matrix *r)
     return (long)width * width * height * 2;
 }
 
+const int TILE_SIZE = 10;
+
+__global__ void mul_cuda_3_kernel(number *a, number *b, number *r, int height, int width)
+{
+    int tx = blockIdx.x * TILE_SIZE + threadIdx.x;
+    int ty = blockIdx.y * TILE_SIZE + threadIdx.y;
+    number n = 0;
+    for (int k = 0; k < width; k++) {
+        n += a[ty * width + k] * b[k * height + tx];
+    }
+    r[ty * height + tx] = n;
+}
+
+long matrix::mul_cuda_3(const matrix *a, const matrix *b, matrix *r)
+{
+    int height, width;
+    a->size(&height, &width);
+    void *aa, *bb, *rr;
+    CUDA_SAFE_CALL( cudaMalloc(&aa, height * width * sizeof(number)) );
+    matrix::iter_all ia(a);
+    CUDA_SAFE_CALL( cudaMemcpy(aa, *ia, height * width * sizeof(number), cudaMemcpyHostToDevice) );
+    CUDA_SAFE_CALL( cudaMalloc(&bb, height * width * sizeof(number)) );
+    matrix::iter_all ib(b);
+    CUDA_SAFE_CALL( cudaMemcpy(bb, *ib, height * width * sizeof(number), cudaMemcpyHostToDevice) );
+    CUDA_SAFE_CALL( cudaMalloc(&rr, height * height * sizeof(number)) );
+    dim3 grid(height / TILE_SIZE, height / TILE_SIZE);
+    dim3 block(TILE_SIZE, TILE_SIZE);
+    mul_cuda_3_kernel<<<grid, block>>>((number *)aa, (number *)bb, (number *)rr, height, width);
+    matrix::iter_all ir(r);
+    CUDA_SAFE_CALL( cudaMemcpy(*ir, rr, height * height * sizeof(number), cudaMemcpyDeviceToHost) );
+    cudaFree(rr); cudaFree(bb); cudaFree(aa);
+    return (long)width * width * height * 2;
+}
+
 /*      */
 /* main */
 /*      */
@@ -182,12 +216,12 @@ test_0003()
 void
 test_0004()
 {
-    matrix *a = matrix::new_random_filled(DIM_SMALL, DIM_SMALL);
-    matrix *b = matrix::new_random_filled(DIM_SMALL, DIM_SMALL);
-    matrix *r1 = matrix::new_garbage(DIM_SMALL, DIM_SMALL);
-    matrix *r2 = matrix::new_garbage(DIM_SMALL, DIM_SMALL);
-    matrix *r3 = matrix::new_garbage(DIM_SMALL, DIM_SMALL);
-    matrix *r4 = matrix::new_garbage(DIM_SMALL, DIM_SMALL);
+    matrix *a = matrix::new_random_filled(DIM, DIM);
+    matrix *b = matrix::new_random_filled(DIM, DIM);
+    matrix *r1 = matrix::new_garbage(DIM, DIM);
+    matrix *r2 = matrix::new_garbage(DIM, DIM);
+    matrix *r3 = matrix::new_garbage(DIM, DIM);
+    matrix *r4 = matrix::new_garbage(DIM, DIM);
     stopwatch sw;
     sw.start();
     long flop_count;
@@ -203,7 +237,7 @@ test_0004()
     sw.get_lap();
     sw.show(flop_count);
     sw.start();
-    flop_count = matrix::mul_cuda_2(a, b, r4);
+    flop_count = matrix::mul_cuda_3(a, b, r4);
     sw.get_lap();
     sw.show(flop_count);
     assert(matrix::eq(r1, r2));
@@ -216,6 +250,23 @@ test_0004()
     matrix::delete_matrix(r3);
     matrix::delete_matrix(r4);
 }
+
+void
+test_0005()
+{
+    matrix *a = matrix::new_random_filled(20, 30);
+    matrix *b = matrix::new_random_filled(30, 20);
+    matrix *r1 = matrix::new_garbage(20, 20);
+    matrix *r2 = matrix::new_garbage(20, 20);
+    matrix::mul_ikj(a, b, r1);
+    long flop_count = matrix::mul_cuda_3(a, b, r2);
+    assert(matrix::eq(r1, r2));
+    matrix::delete_matrix(a);
+    matrix::delete_matrix(b);
+    matrix::delete_matrix(r1);
+    matrix::delete_matrix(r2);
+}
+
 
 int main(int argc, char *argv[])
 {
